@@ -8,6 +8,8 @@ on:
 env:
   SID: ${{ secrets.SID }}
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+  QDARNT_ID: ${{ secrets.QDARNT_ID }}
 
 jobs:
   build:
