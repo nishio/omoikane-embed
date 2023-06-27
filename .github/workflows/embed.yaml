@@ -27,7 +27,7 @@ jobs:
       - uses: denoland/setup-deno@v1
 
       - name: Export from Scrapbox(/omoikane to omoikane.json)
-        run: ./export_from_scrapbox.sh
+        run: export_from_scrapbox/start.sh
 
       - name: Embed (omoikane.json to omoikane.pickle)
         run: python make_vecs_from_json/main.py
