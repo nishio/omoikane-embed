@@ -1,0 +1,40 @@
+name: embed omoikane
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 21 * * *'  # JST 6:00
+
+env:
+  SID: ${{ secrets.SID }}
+
+jobs:
+  build:
+    permissions:
+      contents: 'write'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          lfs: true
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10.4'
+          cache: 'pip' # caching pip dependencies
+      - run: pip install -r requirements.txt
+
+      - uses: denoland/setup-deno@v1
+
+      - name: Export from Scrapbox(/omoikane to omoikane.json)
+        run: ./export_from_scrapbox.sh
+
+      - name: Embed (omoikane.json to omoikane.pickle)
+        run: python make_vecs_from_json/main.py
+
+      - name: Upload (omoikane.pickle to Qdrant)
+        run: python upload_vecs/main.py
+
+      - name: Commit cache file
+        run: ./commit.sh
+
