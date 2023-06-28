@@ -22,7 +22,7 @@ import dotenv
 import os
 
 
-BLOCK_SIZE = 500
+DEFAULT_BLOCK_SIZE = 500
 
 dotenv.load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -72,7 +72,6 @@ def clean(line):
     return line
 
 
-
 def safe_write(obj, name):
     to_exit = False
 
@@ -88,7 +87,12 @@ def safe_write(obj, name):
 
 
 def update_from_scrapbox_json(
-    out_index, jsonfile, cache_index=None, dry_run=False, is_public=False
+    out_index,
+    jsonfile,
+    cache_index=None,
+    dry_run=False,
+    is_public=False,
+    block_size=DEFAULT_BLOCK_SIZE,
 ):
     """
     out_index: output index file name
@@ -128,7 +132,7 @@ def update_from_scrapbox_json(
         for line in p["lines"]:
             buf.append(line)
             body = clean(" ".join(buf))
-            if get_size(body) > BLOCK_SIZE:
+            if get_size(body) > block_size:
                 payload = {
                     "title": title,
                     "project": project,
@@ -265,3 +269,9 @@ if __name__ == "__main__":
         "omoikane.json",
         is_public=True,
     )
+    # update_from_scrapbox_json(
+    #     "omoikane.pickle",
+    #     "omoikane.json",
+    #     is_public=True,
+    #     block_size=100,
+    # )
