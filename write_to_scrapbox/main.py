@@ -1,3 +1,7 @@
+"""
+Make digest of updated pages in Scrapbox.
+"""
+
 import requests
 from dotenv import load_dotenv
 import json
