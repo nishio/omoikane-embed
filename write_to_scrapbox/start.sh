@@ -1,1 +1,0 @@
-deno run --allow-net=scrapbox.io --allow-read=./ --allow-write --allow-env write_to_scrapbox/main.ts
