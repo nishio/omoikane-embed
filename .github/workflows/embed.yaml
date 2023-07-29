@@ -35,9 +35,13 @@ jobs:
       - name: Embed (omoikane.json to omoikane.pickle)
         run: python make_vecs_from_json/main.py
 
+      - name: Commit cache file
+        run: ./commit.sh
+
       - name: Upload (omoikane.pickle to Qdrant)
         run: python upload_vecs/main.py
 
-      - name: Commit cache file
-        run: ./commit.sh
+      - name: Generate Report and write (omoikane.json to Scrapbox)
+        run: python write_to_scrapbox/main.py
+
 
