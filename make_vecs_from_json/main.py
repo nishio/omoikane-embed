@@ -151,9 +151,10 @@ def update_from_scrapbox_json(
             }
             add(body, payload)
     if dry_run:
-        cost = tokens / 1000_000 * 0.4
-        print("tokens:", tokens, f"cost: {cost:.2f}USD")
-
+        cost = tokens * 0.0001 / 1000  # $0.0001 / 1K tokens
+        print("tokens:", tokens, f"cost: {cost:.2f} USD")
+        if cache_index is None:
+            cache = vs.cache
         in_cache = 0
         not_in_cache = 0
         for body, payload in api_tasks:
@@ -161,7 +162,7 @@ def update_from_scrapbox_json(
                 in_cache += 1
             else:
                 not_in_cache += 1
-        print("in cache:", in_cache, "not in cache:", not_in_cache)
+        print("in cache:", in_cache, ", not in cache:", not_in_cache)
 
     else:
         vs.batch(api_tasks, cache)
@@ -232,7 +233,7 @@ class VectorStore:
             f"total tasks: {all_tasks}, ",
             f"{100 - 100 * (num_tasks / all_tasks):.1f}% was cached",
         )
-        print(f"processing {num_tasks} tasks in {len(batches)} batches)")
+        print(f"processing {num_tasks} tasks in {len(batches)} batches")
         for batch in tqdm(batches):
             texts = [body for body, _payload in batch]
             res = embed_texts(texts)
@@ -269,9 +270,3 @@ if __name__ == "__main__":
         "omoikane.json",
         is_public=True,
     )
-    # update_from_scrapbox_json(
-    #     "omoikane.pickle",
-    #     "omoikane.json",
-    #     is_public=True,
-    #     block_size=100,
-    # )
