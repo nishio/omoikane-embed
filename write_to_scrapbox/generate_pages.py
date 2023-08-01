@@ -3,16 +3,12 @@ import openai
 import time
 import os
 import json
+import datetime
 
 dotenv.load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-PROMPT = """You are a member of this community. Read following information. Make human-friendly report in Japanese. Constraint: Explain basic infomation. Explain digest of some interesting updated pages. You can add why it is interesting. And then add your opinion or question.
-### Basic information
-Exported timestamp: {exported}
-JSON size: {json_size}
-Pickle size: {pickle_size}
-Titles of updated pages: {titles}
+PROMPT = """You are a member of this community. Read following information. Make human-friendly report in Japanese. Constraint: Explain digest of some interesting updated pages. You should explain why those are interesting. And then add your opinions and questions. You should ask at least one question.
 ### contents of updated pages
 {digest_str}
 """
@@ -27,7 +23,9 @@ def get_size(text):
 
 
 def main():
-    output_page_title = "🤖Omoikane Embed" + time.strftime("%Y-%m-%d_%H:%M:%S")
+    date = datetime.datetime.now() + datetime.timedelta(days=1)
+    date = date.strftime("%Y-%m-%d")
+    output_page_title = "🤖" + date
     lines = [output_page_title]
     json_size = os.path.getsize("omoikane.json")
     pickle_size = os.path.getsize("omoikane.pickle")
