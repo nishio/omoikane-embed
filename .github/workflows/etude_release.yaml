@@ -32,6 +32,13 @@ jobs:
         git tag latest
         git push origin latest
 
+    - name: Delete Old Release
+      run: |
+        LATEST_RELEASE_TAG=$(gh release view --json tagName --jq '.tagName' || echo "")
+        if [[ ! -z "$LATEST_RELEASE_TAG" ]]; then
+          gh release delete $LATEST_RELEASE_TAG --confirm
+        fi
+
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
