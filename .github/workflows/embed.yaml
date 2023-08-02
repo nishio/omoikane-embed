@@ -32,15 +32,10 @@ jobs:
 
 
       - name: Authenticate for gh
-        run: |
-          gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
+        run: gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Download Latest Release (get omoikane.pickle for cache)
-        run: |
-          LATEST_RELEASE_TAG=$(gh release view --json tagName --jq '.tagName')
-          ASSET_DOWNLOAD_URL=$(gh release view $LATEST_RELEASE_TAG --json assets --jq '.assets[0].url')
-          wget $ASSET_DOWNLOAD_URL || true
-
+      - name: Download Latest Release  if exists (get omoikane.pickle for cache)
+        run: python download_cache/main.py
 
       - name: Embed (omoikane.json to omoikane.pickle)
         run: python make_vecs_from_json/main.py
@@ -60,6 +55,13 @@ jobs:
         run: |
           git tag latest
           git push origin latest
+
+      - name: Delete Old Release
+        run: |
+          LATEST_RELEASE_TAG=$(gh release view --json tagName --jq '.tagName' || echo "")
+          if [[ ! -z "$LATEST_RELEASE_TAG" ]]; then
+            gh release delete $LATEST_RELEASE_TAG --confirm
+          fi
 
       - name: Create Release
         id: create_release
@@ -82,6 +84,7 @@ jobs:
           asset_path: ./omoikane.pickle
           asset_name: omoikane.pickle
           asset_content_type: application/octet-stream
+
 
       - name: Upload (omoikane.pickle to Qdrant)
         run: python upload_vecs/main.py
