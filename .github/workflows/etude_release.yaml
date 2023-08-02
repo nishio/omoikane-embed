@@ -21,10 +21,10 @@ jobs:
         git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
     - name: Create Tag
-          id: create_tag
-          run: |
-            git tag latest
-            git push origin latest
+      id: create_tag
+      run: |
+        git tag latest
+        git push origin latest
 
     - name: Create Release
       id: create_release
