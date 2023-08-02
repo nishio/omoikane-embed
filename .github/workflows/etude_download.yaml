@@ -1,4 +1,4 @@
-name: Download Release
+name: Etude Download Release
 
 on:
   workflow_dispatch:
@@ -14,7 +14,7 @@ jobs:
 
     - name: Download latest release
       run: |
-        LATEST_RELEASE_TAG=$(gh release view --json version --jq '.version')
+        LATEST_RELEASE_TAG=$(gh release view --json version --jq '.tagName')
         ASSET_DOWNLOAD_URL=$(gh release view $LATEST_RELEASE_TAG --json assets --jq '.assets[0].browser_download_url')
         wget $ASSET_DOWNLOAD_URL
 

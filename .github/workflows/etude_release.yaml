@@ -1,4 +1,4 @@
-name: Create Release
+name: Etude Create Release
 
 on:
   workflow_dispatch:
