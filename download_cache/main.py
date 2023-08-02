@@ -3,6 +3,7 @@ download cache from Github Release
 When some error occurs, ignore it and continue.
 """
 import subprocess
+import os
 
 
 def main():
@@ -30,6 +31,9 @@ def main():
     except subprocess.CalledProcessError:
         print("Failed to download asset.")
         return
+
+    if os.path.exists("omoikane.pickle.1"):
+        os.move("omoikane.pickle.1", "omoikane.pickle")
 
 
 main()
