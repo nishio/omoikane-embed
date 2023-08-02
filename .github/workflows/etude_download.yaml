@@ -1,0 +1,22 @@
+name: Download Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Authenticate
+      run: |
+        gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
+
+    - name: Download latest release
+      run: |
+        LATEST_RELEASE_TAG=$(gh release view --json version --jq '.version')
+        ASSET_DOWNLOAD_URL=$(gh release view $LATEST_RELEASE_TAG --json assets --jq '.assets[0].browser_download_url')
+        wget $ASSET_DOWNLOAD_URL
+
+    - name: ls
+      run: ls -lt
