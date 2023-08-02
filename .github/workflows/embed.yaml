@@ -35,7 +35,23 @@ jobs:
         run: gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Download Latest Release  if exists (get omoikane.pickle for cache)
-        run: python download_cache/main.py
+        run: |
+          LATEST_RELEASE_TAG=$(gh release view --json tagName --jq '.tagName' || echo "")
+          echo "LATEST_RELEASE_TAG: $LATEST_RELEASE_TAG"
+          if [[ ! -z "$LATEST_RELEASE_TAG" ]]; then
+            ASSET_DOWNLOAD_URL=$(gh release view $LATEST_RELEASE_TAG --json assets --jq '.assets[0].url' || echo "")
+            echo "ASSET_DOWNLOAD_URL: $ASSET_DOWNLOAD_URL"
+            if [[ ! -z "$ASSET_DOWNLOAD_URL" ]]; then
+              wget $ASSET_DOWNLOAD_URL || echo "Failed to download asset."
+              if [[ -f "omoikane.pickle.1" ]]; then
+                mv omoikane.pickle.1 omoikane.pickle
+              fi
+            else
+              echo "Failed to get asset download url."
+            fi
+          else
+            echo "Failed to get latest release tag."
+          fi
 
       - name: Embed (omoikane.json to omoikane.pickle)
         run: python make_vecs_from_json/main.py
