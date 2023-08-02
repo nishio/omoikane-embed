@@ -30,11 +30,17 @@ jobs:
       - name: Export from Scrapbox(/omoikane to omoikane.json)
         run: export_from_scrapbox/start.sh
 
-      - name: Download Latest Release (get omoikane.pickle)
+
+      - name: Authenticate for gh
+        run: |
+          gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Download Latest Release (get omoikane.pickle for cache)
         run: |
           LATEST_RELEASE_TAG=$(gh release view --json tagName --jq '.tagName')
           ASSET_DOWNLOAD_URL=$(gh release view $LATEST_RELEASE_TAG --json assets --jq '.assets[0].url')
           wget $ASSET_DOWNLOAD_URL || true
+
 
       - name: Embed (omoikane.json to omoikane.pickle)
         run: python make_vecs_from_json/main.py
