@@ -17,8 +17,12 @@ jobs:
 
     - name: Download latest release
       run: |
+        echo $(gh release view --json tagName --jq '.tagName')
         LATEST_RELEASE_TAG=$(gh release view --json tagName --jq '.tagName')
+        echo $LATEST_RELEASE_TAG
+        echo $(gh release view $LATEST_RELEASE_TAG --json assets --jq '.assets')
         ASSET_DOWNLOAD_URL=$(gh release view $LATEST_RELEASE_TAG --json assets --jq '.assets[0].browser_download_url')
+        echo $ASSET_DOWNLOAD_URL
         wget $ASSET_DOWNLOAD_URL
 
     - name: ls
