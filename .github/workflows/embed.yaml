@@ -31,6 +31,7 @@ jobs:
         run: export_from_scrapbox/start.sh
 
       - name: Download Latest Release (get omoikane.pickle)
+        run: |
           LATEST_RELEASE_TAG=$(gh release view --json tagName --jq '.tagName')
           ASSET_DOWNLOAD_URL=$(gh release view $LATEST_RELEASE_TAG --json assets --jq '.assets[0].url')
           wget $ASSET_DOWNLOAD_URL || true
