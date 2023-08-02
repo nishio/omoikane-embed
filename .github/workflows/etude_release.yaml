@@ -12,6 +12,20 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: ls
+      run: ls -lt
+
+    - name: Set up Git
+      run: |
+        git config user.name github-actions[bot]
+        git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
+    - name: Create Tag
+          id: create_tag
+          run: |
+            git tag latest
+            git push origin latest
+
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
