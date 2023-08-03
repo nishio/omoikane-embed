@@ -76,7 +76,7 @@ jobs:
         run: |
           LATEST_RELEASE_TAG=$(gh release view --json tagName --jq '.tagName' || echo "")
           if [[ ! -z "$LATEST_RELEASE_TAG" ]]; then
-            gh release delete $LATEST_RELEASE_TAG --confirm
+            gh release delete $LATEST_RELEASE_TAG --yes
           fi
 
       - name: Create Release
