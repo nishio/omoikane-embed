@@ -1,0 +1,111 @@
+name: Embed Omoikane(Mock Test)
+
+on:
+  workflow_dispatch:
+
+env:
+  SID: ${{ secrets.SID }}
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+  QDARNT_ID: ${{ secrets.QDARNT_ID }}
+
+jobs:
+  build:
+    permissions:
+      contents: 'write'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          lfs: true        
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10.4'
+          cache: 'pip' # caching pip dependencies
+      - run: pip install -r requirements.txt
+
+      - uses: denoland/setup-deno@v1
+
+      - name: Export from Scrapbox(/omoikane to omoikane.json)
+        run: export_from_scrapbox/start.sh
+
+
+      - name: Authenticate for gh
+        run: gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Download Latest Release  if exists (get omoikane.pickle for cache)
+        run: |
+          LATEST_RELEASE_TAG=$(gh release view --json tagName --jq '.tagName' || echo "")
+          echo "LATEST_RELEASE_TAG: $LATEST_RELEASE_TAG"
+          if [[ ! -z "$LATEST_RELEASE_TAG" ]]; then
+            ASSET_DOWNLOAD_URL=$(gh release view $LATEST_RELEASE_TAG --json assets --jq '.assets[0].url' || echo "")
+            echo "ASSET_DOWNLOAD_URL: $ASSET_DOWNLOAD_URL"
+            if [[ ! -z "$ASSET_DOWNLOAD_URL" ]]; then
+              wget $ASSET_DOWNLOAD_URL || echo "Failed to download asset."
+              if [[ -f "omoikane.pickle.1" ]]; then
+                mv omoikane.pickle.1 omoikane.pickle
+              fi
+            else
+              echo "Failed to get asset download url."
+            fi
+          else
+            echo "Failed to get latest release tag."
+          fi
+
+      - name: Mock Embed (omoikane.json to omoikane.pickle)
+        run: python make_vecs_from_json/mock.py
+
+
+      - name: Set up Git
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
+      - name: Remove Tag
+        run: |
+          git push --delete origin latest || true
+
+      - name: Create Tag
+        id: create_tag
+        run: |
+          git tag latest
+          git push origin latest
+
+      - name: Delete Old Release
+        run: |
+          LATEST_RELEASE_TAG=$(gh release view --json tagName --jq '.tagName' || echo "")
+          if [[ ! -z "$LATEST_RELEASE_TAG" ]]; then
+            gh release delete $LATEST_RELEASE_TAG --yes
+          fi
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: latest
+          release_name: Release
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        id: upload_release_asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} 
+          asset_path: ./omoikane.pickle
+          asset_name: omoikane.pickle
+          asset_content_type: application/octet-stream
+
+
+      - name: Upload (omoikane.pickle to Qdrant)
+        run: python upload_vecs/main.py
+
+      - name: Generate Report and write (omoikane.json to Scrapbox)
+        run: python write_to_scrapbox/main.py
+
+
