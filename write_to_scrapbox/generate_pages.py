@@ -38,7 +38,7 @@ def main():
     for page in data["pages"]:
         if page["updated"] < limit:
             continue
-        if "🤖" in page["title"]:
+        if any(x in page["title"] for x in ["🤖", "ネタバレ注意"]):
             continue
         updated_pages[page["title"]] = page
 
@@ -49,23 +49,39 @@ def main():
     for title, page in updated_pages.items():
         header = ""
         buf = []
-        for line in page["lines"]:
-            buf.append(line)
+        lines = page["lines"][:]
+        for line in lines:
+            buf.append(lines.pop(0))
             body = "\n".join(buf)
             if get_size(body) > block_size:
                 buf.pop(-1)
                 header = "\n".join(buf)
                 break
+        else:
+            header = "\n".join(buf)
+            digest = f"# {title}\n{header}\n...\n{footer}\n"
+            print(digest)
+            digests.append(digest)
+            continue
 
+        if "雑談ページ" in title:
+            header = ""
+
+        header_size = get_size(header)
         footer = ""
         buf = []
-        for line in reversed(page["lines"]):
+        for line in reversed(lines):
             buf.append(line)
             body = "\n".join(buf)
-            if get_size(body) > block_size:
+            if get_size(body) + header_size > block_size * 2:
                 buf.pop(-1)
                 footer = "\n".join(reversed(buf))
                 break
+        else:
+            digest = f"# {title}\n{header}\n{footer}\n"
+            print(digest)
+            digests.append(digest)
+            continue
 
         digest = f"# {title}\n{header}\n...\n{footer}\n"
         print(digest)
