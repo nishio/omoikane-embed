@@ -53,9 +53,16 @@ def main(pickle_names, IS_LOCAL=False, TO_RESET=False):
             for k in batch:
                 # print(k, data[k])
                 vec, payload = data[k]
-                id = get_64bit_hash_from_tuple(
-                    (payload["project"], payload["title"], payload["text"])
-                )
+                try:
+                    id = get_64bit_hash_from_tuple(
+                        (payload["project"], payload["title"], payload["text"])
+                    )
+                except Exception as e:
+                    print(e)
+                    print("payload:", payload)
+                    break
+
+
                 points.append(
                     PointStruct(
                         id=id,
