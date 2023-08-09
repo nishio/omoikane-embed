@@ -62,18 +62,9 @@ def make_digest(title, page, block_size):
     return digest
 
 
-def main():
-    date = datetime.datetime.now() + datetime.timedelta(days=1)
-    date = date.strftime("%Y-%m-%d")
-    output_page_title = "🤖" + date
-    lines = [output_page_title]
-    json_size = os.path.getsize(f"{PROJECT}.json")
-    pickle_size = os.path.getsize(f"{PROJECT}.pickle")
-
-    data = json.load(open(f"{PROJECT}.json"))
+def get_updated_pages(data, span=60 * 60 * 24):
     exported = data["exported"]
-    # one day limit
-    limit = exported - 60 * 60 * 24
+    limit = exported - span
     updated_pages = {}
     for page in data["pages"]:
         if page["updated"] < limit:
@@ -81,7 +72,21 @@ def main():
         if any(x in page["title"] for x in ["🤖", "ネタバレ注意"]):
             continue
         updated_pages[page["title"]] = page
+    return updated_pages
 
+
+def main():
+    # make title
+    date = datetime.datetime.now()
+    date = date.strftime("%Y-%m-%d")
+    output_page_title = "🤖" + date
+
+    lines = [output_page_title]
+    json_size = os.path.getsize(f"{PROJECT}.json")
+    pickle_size = os.path.getsize(f"{PROJECT}.pickle")
+
+    data = json.load(open(f"{PROJECT}.json"))
+    updated_pages = get_updated_pages(data)
     # take 2000 tokens digests
     digests = []
     num_updated_pages = len(updated_pages)
@@ -113,6 +118,7 @@ def main():
         lines.append(str(e))
         lines.append("Prompt:")
         lines.extend(prompt.split("\n"))
+
 
     # extra info
     date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
