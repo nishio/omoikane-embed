@@ -4,6 +4,7 @@ import time
 import os
 import json
 import datetime
+import random
 
 dotenv.load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -11,7 +12,7 @@ PROJECT = os.getenv("PROJECT_NAME")
 assert OPENAI_API_KEY and PROJECT
 openai.api_key = OPENAI_API_KEY
 
-PROMPT = """You are a member of this community. Read following information. Make human-friendly report in Japanese as bullet lists. Constraint: Explain digest of some interesting updated pages. You should explain why those are interesting. And then add your opinions and questions. You should ask at least one question.
+PROMPT = """You are a member of this community. Read following information. Make human-friendly report in Japanese as bullet lists. Constraint: Refer the title of some interesting pages in `[title]` style. You should explain why those are interesting. And then add your opinions and questions. You should ask at least one question.
 ### contents of updated pages
 {digest_str}
 """
@@ -75,6 +76,18 @@ def get_updated_pages(data, span=60 * 60 * 24):
     return updated_pages
 
 
+def get_random_pages(data, num=4):
+    target_pages = {}
+    for page in data["pages"]:
+        if any(x in page["title"] for x in ["🤖", "ネタバレ注意"]):
+            continue
+        target_pages[page["title"]] = page
+    keys = list(target_pages.keys())
+    random.shuffle(keys)
+    target_pages = {k: target_pages[k] for k in keys[:num]}
+    return target_pages
+
+
 def main():
     # make title
     date = datetime.datetime.now()
@@ -86,15 +99,16 @@ def main():
     pickle_size = os.path.getsize(f"{PROJECT}.pickle")
 
     data = json.load(open(f"{PROJECT}.json"))
-    updated_pages = get_updated_pages(data)
+    target_pages = get_random_pages(data)
+
     # take 2000 tokens digests
     digests = []
-    num_updated_pages = len(updated_pages)
-    block_size = 2000 / num_updated_pages
-    for title, page in updated_pages.items():
+    num_target_pages = len(target_pages)
+    block_size = 2000 / num_target_pages
+    for title, page in target_pages.items():
         digests.append(make_digest(title, page, block_size))
 
-    titles = ", ".join(updated_pages.keys())
+    titles = ", ".join(target_pages.keys())
     digest_str = "\n".join(digests)
 
     prompt = PROMPT.format(**locals())
@@ -129,7 +143,7 @@ def main():
     lines.append("json size: " + str(json_size))
     lines.append("pickle size: " + str(pickle_size))
     lines.append("titles: " + titles)
-    lines.append("num_updated_pages: " + str(num_updated_pages))
+    lines.append("num_target_pages: " + str(num_target_pages))
 
     pages = [{"title": output_page_title, "lines": lines}]
     return pages
