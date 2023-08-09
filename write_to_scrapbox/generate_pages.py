@@ -114,8 +114,12 @@ def main():
         lines.append("Prompt:")
         lines.extend(prompt.split("\n"))
 
+    # extra info
+    date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
     lines.append("")
     lines.append("[* extra info]")
+    lines.append("date: " + date)
     lines.append("json size: " + str(json_size))
     lines.append("pickle size: " + str(pickle_size))
     lines.append("titles: " + titles)
