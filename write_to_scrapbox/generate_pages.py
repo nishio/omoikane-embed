@@ -11,7 +11,7 @@ PROJECT = os.getenv("PROJECT_NAME")
 assert OPENAI_API_KEY and PROJECT
 openai.api_key = OPENAI_API_KEY
 
-PROMPT = """You are a member of this community. Read following information. Make human-friendly report in Japanese. Constraint: Explain digest of some interesting updated pages. You should explain why those are interesting. And then add your opinions and questions. You should ask at least one question.
+PROMPT = """You are a member of this community. Read following information. Make human-friendly report in Japanese as bullet lists. Constraint: Explain digest of some interesting updated pages. You should explain why those are interesting. And then add your opinions and questions. You should ask at least one question.
 ### contents of updated pages
 {digest_str}
 """
