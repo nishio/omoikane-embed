@@ -1,5 +1,6 @@
 .env
 myenv
+venv
 .vscode
 *.json
 *.pickle
