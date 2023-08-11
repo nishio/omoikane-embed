@@ -103,9 +103,12 @@ def main():
             bot_output.append((page["title"], page["lines"]))
     bot_output.sort()
     prev_title, prev_lines = bot_output[-1]
+    prev_lines.pop(0)  # remove title
+    if prev_lines[0] == LESS_INTERSTING:
+        prev_lines.pop(0)
     previous_notes_lines = []
     for line in prev_lines:
-        if line.startswith(LESS_INTERSTING):
+        if line == LESS_INTERSTING:
             break
         previous_notes_lines.append(line)
     print("\n".join(previous_notes_lines))
