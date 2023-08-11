@@ -116,7 +116,7 @@ def main():
     # take 2000 tokens digests
     keys = list(data.keys())
     random.shuffle(keys)
-    rest = 2000 - get_size(previous_notes)
+    rest = 6000 - get_size(previous_notes)
     digests = []
     titles = []
     while rest > 0:
