@@ -76,6 +76,18 @@ def get_updated_pages(data, span=60 * 60 * 24):
     return updated_pages
 
 
+def is_robot_in_updated_pages(data, span=60 * 60 * 24):
+    exported = data["exported"]
+    limit = exported - span
+    for page in data["pages"]:
+        if page["updated"] < limit:
+            continue
+        if "🤖" in page["title"]:
+            return True
+
+    return False
+
+
 def get_random_pages(data, num=4):
     target_pages = {}
     for page in data["pages"]:
@@ -99,6 +111,11 @@ def main():
     pickle_size = os.path.getsize(f"{PROJECT}.pickle")
 
     data = json.load(open(f"{PROJECT}.json"))
+    if is_robot_in_updated_pages(data):
+        lines.append("🤖 is already in updated pages.")
+        pages = [{"title": output_page_title, "lines": lines}]
+        return pages
+
     target_pages = get_random_pages(data)
 
     # take 2000 tokens digests
