@@ -112,9 +112,8 @@ def main():
 
     data = json.load(open(f"{PROJECT}.json"))
     if is_robot_in_updated_pages(data):
-        lines.append("🤖 is already in updated pages.")
-        pages = [{"title": output_page_title, "lines": lines}]
-        return pages
+        # avoid too frequent generation
+        return []
 
     target_pages = get_random_pages(data)
 
