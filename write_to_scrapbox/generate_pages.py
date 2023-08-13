@@ -7,6 +7,9 @@ import pickle
 import datetime
 import random
 import tiktoken
+import re
+import requests
+import argparse
 
 dotenv.load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -89,6 +92,8 @@ def main():
     json_size = os.path.getsize(f"{PROJECT}.json")
     pickle_size = os.path.getsize(f"{PROJECT}.pickle")
 
+def find_last_note_from_json():
+    # find latest note from JSON
     jsondata = json.load(open(f"{PROJECT}.json"))
 
     # if is_robot_in_updated_pages(jsondata):
@@ -104,6 +109,27 @@ def main():
             bot_output.append((page["title"], page["lines"]))
     bot_output.sort()
     prev_title, prev_lines = bot_output[-1]
+    return prev_title, prev_lines
+
+
+def read_note_from_scrapbox(url):
+    """
+    url example: https://scrapbox.io/nishio/%F0%9F%A4%962023-08-13_07:08
+    """
+
+    api_url = re.sub(
+        r"(https://scrapbox\.io)/([^/]+)/([^/]+)", r"\1/api/pages/\2/\3", url
+    )
+    page = requests.get(api_url).json()  # currently not supported private project
+    return page["title"], [line["text"] for line in page["lines"]]
+
+
+def get_previous_notes(url=None):
+    if url:
+        prev_title, prev_lines = read_note_from_scrapbox(url)
+    else:
+        prev_title, prev_lines = find_last_note_from_json()
+
     prev_lines.pop(0)  # remove title
     if prev_lines[0] == LESS_INTERSTING:
         prev_lines.pop(0)
@@ -112,8 +138,27 @@ def main():
         if line == LESS_INTERSTING:
             break
         previous_notes_lines.append(line)
-    print("\n".join(previous_notes_lines))
+    # print("\n".join(previous_notes_lines))
     previous_notes = "\n".join(previous_notes_lines)
+    return prev_title, previous_notes
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Process a URL")
+    parser.add_argument("--url", type=str, help="The URL to process", required=False)
+    args = parser.parse_args()
+
+    date = datetime.datetime.now()
+    date = date.strftime("%Y-%m-%d %H:%M")
+    output_page_title = "🤖" + date
+    lines = [output_page_title, LESS_INTERSTING]
+    json_size = os.path.getsize(f"{PROJECT}.json")
+    pickle_size = os.path.getsize(f"{PROJECT}.pickle")
+
+    if args.url:
+        prev_title, previous_notes = get_previous_notes(args.url)
+    else:
+        prev_title, previous_notes = get_previous_notes()
 
 
     data = pickle.load(open(f"{PROJECT}.pickle", "rb"))
@@ -171,13 +216,9 @@ def main():
     lines.append("pickle size: " + str(pickle_size))
     lines.append("previous notes size: " + str(get_size(previous_notes)))
     lines.append(f"previous notes: [{prev_title}]")
-<<<<<<< HEAD
-    lines.append("titles: " + ", ".join(f"[{s}]" for s in titles))
-=======
     lines.append("titles: " + ", ".join(f"{s}" for s in titles))
 
     print(lines)
->>>>>>> 0ef5c48 (dont link)
     pages = [{"title": output_page_title, "lines": lines}]
     return pages
 
