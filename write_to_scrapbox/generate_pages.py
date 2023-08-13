@@ -10,6 +10,7 @@ import tiktoken
 import re
 import requests
 import argparse
+from urllib.parse import quote
 
 dotenv.load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -43,6 +44,7 @@ def make_digest(payload):
 
 LESS_INTERSTING = "___BELOW_IS_LESS_INTERESTING___"
 
+<<<<<<< HEAD
 
 def get_updated_pages(data, span=60 * 60 * 24):
     exported = data["exported"]
@@ -103,6 +105,9 @@ def find_last_note_from_json():
 
 
     pages = jsondata["pages"]
+=======
+def find_last_note_from_pages(pages):
+>>>>>>> 11ddd5e (find latest note from scrapbox)
     bot_output = []
     for page in pages:
         if page["title"].startswith("🤖20"):
@@ -110,6 +115,37 @@ def find_last_note_from_json():
     bot_output.sort()
     prev_title, prev_lines = bot_output[-1]
     return prev_title, prev_lines
+
+
+def find_last_note_from_json():
+    # find latest note from JSON
+    jsondata = json.load(open(f"{PROJECT}.json"))
+    pages = jsondata["pages"]
+    return find_last_note_from_json(pages)
+
+
+def title_to_url(title, project_name):
+    # Replace spaces with underscores
+    title_with_underscores = title.replace(' ', '_')
+    # Encode non-ASCII characters
+    encoded_title = quote(title_with_underscores)
+    # Construct the URL
+    url = f"https://scrapbox.io/{PROJECT}/{encoded_title}"
+    return url
+
+
+def find_last_note_from_scrapbox():
+    # find latest note from Scrapbox
+    api_url = f"https://scrapbox.io/api/pages/{PROJECT}"
+    page = requests.get(api_url).json()
+    bot_output = []
+    for line in page["pages"]:
+        if line["title"].startswith("🤖20"):
+            bot_output.append(line["title"])
+    bot_output.sort()
+    prev_title = bot_output[-1]
+    return read_note_from_scrapbox(title_to_url(prev_title, PROJECT))
+
 
 
 def read_note_from_scrapbox(url):
@@ -124,9 +160,11 @@ def read_note_from_scrapbox(url):
     return page["title"], [line["text"] for line in page["lines"]]
 
 
-def get_previous_notes(url=None):
-    if url:
-        prev_title, prev_lines = read_note_from_scrapbox(url)
+def get_previous_notes(args):
+    if args.url:
+        prev_title, prev_lines = read_note_from_scrapbox(args.url)
+    elif args.get_latest:
+        prev_title, prev_lines = find_last_note_from_scrapbox()
     else:
         prev_title, prev_lines = find_last_note_from_json()
 
@@ -146,6 +184,7 @@ def get_previous_notes(url=None):
 def main():
     parser = argparse.ArgumentParser(description="Process a URL")
     parser.add_argument("--url", type=str, help="The URL to process", required=False)
+    parser.add_argument("--get-latest", action="store_true", help="Get the latest page from online Scrapbox")
     args = parser.parse_args()
 
     date = datetime.datetime.now()
@@ -155,12 +194,8 @@ def main():
     json_size = os.path.getsize(f"{PROJECT}.json")
     pickle_size = os.path.getsize(f"{PROJECT}.pickle")
 
-    if args.url:
-        prev_title, previous_notes = get_previous_notes(args.url)
-    else:
-        prev_title, previous_notes = get_previous_notes()
-
-
+    prev_title, previous_notes = get_previous_notes(args)
+ 
     data = pickle.load(open(f"{PROJECT}.pickle", "rb"))
 
     # fill the rest with random fragments
