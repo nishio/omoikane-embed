@@ -2,7 +2,7 @@ import requests
 import dotenv
 import json
 import os
-import generate_pages
+import recurrent_notes
 
 dotenv.load_dotenv()
 SID = os.getenv("SID")
@@ -39,7 +39,7 @@ def _test():
 
 
 def main(dry=False):
-    pages = generate_pages.main()
+    pages = recurrent_notes.main()
     write_pages(pages)
     print("write ok")
 

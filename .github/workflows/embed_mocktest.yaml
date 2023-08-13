@@ -9,6 +9,7 @@ env:
   QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
   QDRANT_URL: ${{ secrets.QDRANT_URL }}
   PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
+  TZ: 'Asia/Tokyo'
 
 jobs:
   build:

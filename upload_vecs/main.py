@@ -2,7 +2,6 @@ from qdrant_client.http.models import PointStruct
 from qdrant_client import QdrantClient, models
 from qdrant_client.http.models import Distance, VectorParams
 from qdrant_client.http.models import Filter, FieldCondition, MatchValue
-import pprint
 import time
 import hashlib
 from tqdm import tqdm
@@ -18,6 +17,7 @@ PROJECT_NAME = os.environ.get("PROJECT_NAME")
 COLLECTION_NAME = os.environ.get("COLLECTION_NAME") or PROJECT_NAME
 assert QDRANT_API_KEY and QDRANT_URL and PROJECT_NAME
 
+
 def get_64bit_hash_from_tuple(input_tuple):
     input_string = "".join(map(str, input_tuple))
     sha256_hash = hashlib.sha256()
@@ -26,6 +26,7 @@ def get_64bit_hash_from_tuple(input_tuple):
 
 
 def main(pickle_names, IS_LOCAL=False, TO_RESET=False):
+    start_time = time.perf_counter()
     if IS_LOCAL:
         client = QdrantClient("localhost", port=6333)
     else:
@@ -46,7 +47,16 @@ def main(pickle_names, IS_LOCAL=False, TO_RESET=False):
     for pickle_name in pickle_names:
         print("uploading", pickle_name)
         data = pickle.load(open(pickle_name, "rb"))
-        keys = list(data.keys())
+        keys = set(data.keys())
+        num_total_keys = len(keys)
+        print(f"num_total_keys: {num_total_keys}")
+        if os.path.exists("prev.pickle"):
+            prev_data = pickle.load(open("prev.pickle", "rb"))
+            keys -= set(prev_data.keys())
+            num_new_keys = len(keys)
+            print(f"num_new_keys: {num_new_keys}")
+
+        keys = list(keys)
         batches = [keys[i : i + 100] for i in range(0, len(keys), 100)]
         for batch in tqdm(batches):
             points = []
@@ -61,7 +71,6 @@ def main(pickle_names, IS_LOCAL=False, TO_RESET=False):
                     print(e)
                     print("payload:", payload)
                     break
-
 
                 points.append(
                     PointStruct(
@@ -87,7 +96,8 @@ def main(pickle_names, IS_LOCAL=False, TO_RESET=False):
         collection_name=COLLECTION_NAME,
         optimizer_config=models.OptimizersConfigDiff(indexing_threshold=20000),
     )
-    print("OK")
+    print("OK, total time: ", int(time.perf_counter() - start_time), "sec")
+
 
 if __name__ == "__main__":
     main([f"{PROJECT_NAME}.pickle"], IS_LOCAL=False)
