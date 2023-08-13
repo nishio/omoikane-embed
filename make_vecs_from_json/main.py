@@ -52,9 +52,6 @@ def embed_texts(texts, sleep_after_sucess=1):
             time.sleep(sleep_after_sucess)
         except Exception as e:
             print(e)
-            import pdb
-
-            pdb.set_trace()
             time.sleep(1)
             continue
         break

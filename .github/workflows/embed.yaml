@@ -11,6 +11,7 @@ env:
   QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
   QDRANT_URL: ${{ secrets.QDRANT_URL }}
   PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
+  TZ: 'Asia/Tokyo'
 
 jobs:
   build:
@@ -55,6 +56,9 @@ jobs:
           else
             echo "Failed to get latest release tag."
           fi
+
+      - name: backup previous pickle
+        run: cp "$PROJECT_NAME.pickle" prev.pickle
 
       - name: Embed (PROJECT_NAME.json to PROJECT_NAME.pickle)
         run: python make_vecs_from_json/main.py

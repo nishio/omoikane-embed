@@ -12,6 +12,15 @@ def update_from_scrapbox_json(name, json_name, is_public=False):
     import main
 
     vs = main.VectorStore(name, create_if_not_exist=True)
+    for k in vs.cache:
+        vec_, payload = vs.cache[k]
+        # format check
+        assert isinstance(payload["project"], str)
+        assert isinstance(payload["title"], str)
+        assert isinstance(payload["text"], str)
+        assert isinstance(payload["is_public"], bool)
+    vs.cache = {}  # delete cache, because it is test with small data
+
     payload = {
         "title": "MOCK TEST",
         "project": PROJECT,
