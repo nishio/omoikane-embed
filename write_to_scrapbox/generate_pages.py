@@ -11,6 +11,7 @@ import re
 import requests
 import argparse
 from urllib.parse import quote
+from utils import markdown_to_scrapbox
 
 dotenv.load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -231,6 +232,8 @@ def main():
             stop=None,
         )
         ret = response.choices[0].message.content.strip()
+        print(ret)
+        ret = markdown_to_scrapbox(ret)
         lines.extend(ret.split("\n"))
     except Exception as e:
         lines.append("Failed to generate report.")
