@@ -1,3 +1,19 @@
+"""
+Recurrent Research Notes Generation
+
+This script generates a new "research note" for Scrapbox, based on the previous "research note" and random fragments.
+
+Japanese description (original)
+https://scrapbox.io/nishio/AI%E3%81%8C%E6%AF%8E%E6%97%A5%E7%A0%94%E7%A9%B6%E3%83%8E%E3%83%BC%E3%83%88%E3%82%92%E6%9B%B8%E3%81%8F
+Translation to English
+https://scrapbox.io/nishio-en/AI_writes_research_notes_daily
+
+Outcome example:
+Japanese: https://scrapbox.io/nishio/AI%E3%81%A8%E3%81%AE%E5%85%B1%E5%90%8C%E5%8C%96
+English: https://scrapbox.io/nishio-en/Co-operation_with_AI
+
+"""
+
 import dotenv
 import openai
 import time
