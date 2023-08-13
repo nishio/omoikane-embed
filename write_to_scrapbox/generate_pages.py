@@ -44,7 +44,6 @@ def make_digest(payload):
 
 LESS_INTERSTING = "___BELOW_IS_LESS_INTERESTING___"
 
-<<<<<<< HEAD
 
 def get_updated_pages(data, span=60 * 60 * 24):
     exported = data["exported"]
@@ -105,9 +104,8 @@ def find_last_note_from_json():
 
 
     pages = jsondata["pages"]
-=======
+
 def find_last_note_from_pages(pages):
->>>>>>> 11ddd5e (find latest note from scrapbox)
     bot_output = []
     for page in pages:
         if page["title"].startswith("🤖20"):
