@@ -170,7 +170,13 @@ def main():
     lines.append("pickle size: " + str(pickle_size))
     lines.append("previous notes size: " + str(get_size(previous_notes)))
     lines.append(f"previous notes: [{prev_title}]")
+<<<<<<< HEAD
     lines.append("titles: " + ", ".join(f"[{s}]" for s in titles))
+=======
+    lines.append("titles: " + ", ".join(f"{s}" for s in titles))
+
+    print(lines)
+>>>>>>> 0ef5c48 (dont link)
     pages = [{"title": output_page_title, "lines": lines}]
     return pages
 
