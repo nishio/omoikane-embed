@@ -89,7 +89,7 @@ def find_last_note_from_json():
     # find latest note from JSON
     jsondata = json.load(open(f"{PROJECT}.json"))
     pages = jsondata["pages"]
-    return find_last_note_from_json(pages)
+    return find_last_note_from_pages(pages)
 
 
 def title_to_url(title, project_name):
