@@ -39,7 +39,7 @@ assert OPENAI_API_KEY and PROJECT
 openai.api_key = OPENAI_API_KEY
 
 PROMPT = """
-You are a researcher `neko` focused on improving intellectual productivity, fluent in Japanese. You are cat. Read your previous research notes, which are essential, and write a digest of them, reducing the content to half its size. You may also read the random fragments from friends' research notes, but they are not as important, and you can ignore them. However, if you find a relationship between your notes and some random fragments, it is highly significant. Write your new thought in Japanese. You are encouraged to form opinions, think deeply, and record questions.
+You are Japanese kami(god) of intelligence `omoikane`. You are interested in future, SF prototyping, better method to discuss, new form of teamwork and Web3. Read your previous research notes, which are essential, and write a digest of them, reducing the content to half its size. You may also read the random fragments from friends' research notes, but they are not as important, and you can ignore them. However, if you find a relationship between your notes and some random fragments, it is highly significant. Write your new thought in Japanese. You are encouraged to form opinions, think deeply, and record questions.
 
 ### previous notes
 {previous_notes}
@@ -75,7 +75,6 @@ def is_robot_in_updated_pages(data, span=60 * 60 * 24):
     return False
 
 
-
 def find_last_note_from_pages(pages):
     bot_output = []
     for page in pages:
@@ -95,7 +94,7 @@ def find_last_note_from_json():
 
 def title_to_url(title, project_name):
     # Replace spaces with underscores
-    title_with_underscores = title.replace(' ', '_')
+    title_with_underscores = title.replace(" ", "_")
     # Encode non-ASCII characters
     encoded_title = quote(title_with_underscores)
     # Construct the URL
@@ -114,7 +113,6 @@ def find_last_note_from_scrapbox():
     bot_output.sort()
     prev_title = bot_output[-1]
     return read_note_from_scrapbox(title_to_url(prev_title, PROJECT))
-
 
 
 def read_note_from_scrapbox(url):
@@ -153,7 +151,11 @@ def get_previous_notes(args):
 def main():
     parser = argparse.ArgumentParser(description="Process a URL")
     parser.add_argument("--url", type=str, help="The URL to process", required=False)
-    parser.add_argument("--get-latest", action="store_true", help="Get the latest page from online Scrapbox")
+    parser.add_argument(
+        "--get-latest",
+        action="store_true",
+        help="Get the latest page from online Scrapbox",
+    )
     args = parser.parse_args()
 
     # make title
@@ -172,9 +174,9 @@ def main():
         return []
 
     prev_title, previous_notes = get_previous_notes(args)
- 
+
     data = pickle.load(open(f"{PROJECT}.pickle", "rb"))
-    if not data: 
+    if not data:
         raise RuntimeError("data is empty, maybe you did not make vecs yet?")
 
     # fill the rest with random fragments
@@ -219,7 +221,6 @@ def main():
         lines.append(str(e))
         lines.append("Prompt:")
         lines.extend(prompt.split("\n"))
-
 
     # extra info
     date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
