@@ -29,7 +29,7 @@ import argparse
 from urllib.parse import quote
 from utils import markdown_to_scrapbox
 
-CHECK_ROBOT_IN_UPDATES = False  # if True, check if robot is in the latest updates, now it is False because for development
+CHECK_ROBOT_IN_UPDATES = True  # if True, check if robot is in the latest updates
 
 
 dotenv.load_dotenv()
