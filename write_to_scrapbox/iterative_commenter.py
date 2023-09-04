@@ -243,7 +243,7 @@ def overwrite_mode(prev_title, prev_lines):
     print("overwrite:", prev_title)
     original_prev_lines = prev_lines.copy()
 
-    used_pages = get_used_titles(prev_lines)
+    used_pages = get_used_titles(prev_lines) + [prev_title]
     print("used pages:", used_pages)
 
     previous_notes = extract_previous_notes(prev_lines)
