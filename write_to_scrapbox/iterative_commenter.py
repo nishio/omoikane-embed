@@ -404,6 +404,18 @@ def has_ai_generated_contents(lines):
     return any([line.startswith(AI_GENERATED_MARKER) for line in lines])
 
 
+def pioneer_loop():
+    print("# Pioneer mode")
+    while True:
+        pages_to_update = pioneer()
+        if pages_to_update:
+            scrapbox_io.write_pages(pages_to_update)
+            time.sleep(60 * 10)  # wait 10 minutes
+        else:
+            print("no pages to update")
+            time.sleep(60)  # wait 1 minute
+
+
 def pioneer():
     """
     Activates the pioneering mode.
@@ -415,33 +427,27 @@ def pioneer():
     """
     print("# Pioneer mode")
     START_URL = "https://scrapbox.io/api/pages/nishio/%E2%9C%8D%EF%B8%8F%F0%9F%A4%96"
-    while True:
-        page = requests.get(START_URL).json()
-        pages_to_update = []
-        for link in page["links"]:
-            link = quote(link.replace(" ", "_"))
-            url = f"https://scrapbox.io/api/pages/nishio/{link}"
+    page = requests.get(START_URL).json()
+    pages_to_update = []
+    for link in page["links"]:
+        link = quote(link.replace(" ", "_"))
+        url = f"https://scrapbox.io/api/pages/nishio/{link}"
 
-            try:
-                page = requests.get(url).json()
-            except Exception as e:
-                print("error:", e, "url:", url)
-                continue
+        try:
+            page = requests.get(url).json()
+        except Exception as e:
+            print("error:", e, "url:", url)
+            continue
 
-            lines = [x["text"] for x in page["lines"]]
-            title = page["title"]
-            if has_ai_generated_contents(lines):
-                continue
+        lines = [x["text"] for x in page["lines"]]
+        title = page["title"]
+        if has_ai_generated_contents(lines):
+            continue
 
-            print(link)
-            pages_to_update.extend(overwrite_mode(title, lines))
-            json.dump(pages_to_update, open("pages_to_update.json", "w"))
-        if pages_to_update:
-            scrapbox_io.write_pages(pages_to_update)
-            time.sleep(60 * 10)  # wait 10 minutes
-        else:
-            print("no pages to update")
-            time.sleep(60)  # wait 1 minute
+        print(link)
+        pages_to_update.extend(overwrite_mode(title, lines))
+        json.dump(pages_to_update, open("pages_to_update.json", "w"))
+    return pages_to_update
 
 
 def main():
@@ -454,6 +460,12 @@ def main():
         help="Enable the pioneering mode to extend or generate new content.",
         required=False,
     )
+    parser.add_argument(
+        "--pioneer-loop",
+        action="store_true",
+        help="Enable the infinite pioneering mode to extend or generate new content.",
+        required=False,
+    )
 
     parser.add_argument(
         "--skip-gpt",
@@ -462,9 +474,12 @@ def main():
     )
     args = parser.parse_args()
 
-    if args.pioneer:
-        pioneer()
+    if args.pioneer_loop:
+        pioneer_loop()
         return []
+
+    if args.pioneer:
+        return pioneer()
 
     if args.url:
         # URL-specific overwrite, usually triggered by human
