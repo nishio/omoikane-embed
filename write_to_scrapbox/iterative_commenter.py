@@ -20,7 +20,7 @@ import scrapbox_io
 
 from utils import (
     markdown_to_scrapbox,
-    LESS_INTERESTING,
+    AI_GENERATED_MARKER,
     EXTRA_INFO_HEADER,
     extract_previous_notes,
     parse_titles,
@@ -287,7 +287,7 @@ def overwrite_mode(prev_title, prev_lines):
     # add new comment on the bottom of page
     lines = original_prev_lines[:]
 
-    lines.extend([LESS_INTERESTING, section_title])
+    lines.extend([AI_GENERATED_MARKER, section_title])
     lines.extend(response)
 
     lines.append("")
