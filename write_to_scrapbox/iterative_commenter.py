@@ -256,7 +256,7 @@ def overwrite_mode(prev_title, prev_lines):
     date = date.strftime("%Y-%m-%d %H:%M")
 
     section_title = f"[*** {output_page_title}] {date} {CHARACTOR_ICON}"
-    lines = [output_page_title, LESS_INTERESTING, section_title]
+
     rest = 4000 - get_size(PROMPT) - get_size(previous_notes)
     if rest < 0:
         print(f"previous notes is too long, {get_size(previous_notes)}")
@@ -282,6 +282,11 @@ def overwrite_mode(prev_title, prev_lines):
     response = call_gpt(prompt)
     if not response:
         response = ["`AI_IGNORE: GPT failed`"]
+
+    # add new comment on the bottom of page
+    lines = original_prev_lines[:]
+
+    lines.extend([LESS_INTERESTING, section_title])
     lines.extend(response)
 
     lines.append("")
@@ -290,9 +295,6 @@ def overwrite_mode(prev_title, prev_lines):
     lines.append("titles: `{0}`".format(json.dumps(titles, ensure_ascii=False)))
 
     lines.append(f"generated: {date}")
-
-    lines.append("[* previous notes]")
-    lines.extend(original_prev_lines)
 
     pages = [{"title": output_page_title, "lines": lines}]
     return pages
@@ -333,30 +335,6 @@ def call_gpt(prompt, model="gpt-4"):
         # lines.extend(prompt.split("\n"))
         return []
     return lines
-
-
-def main_branch():
-    """find latest AI-note (title: "🤖" + date), read it, and create new one"""
-    print("# Main branch")
-    date = datetime.datetime.now()
-    date = date.strftime("%Y-%m-%d %H:%M")
-    output_page_title = "🤖" + date
-    lines = [output_page_title, LESS_INTERESTING, CHARACTOR_ICON]
-
-    previous_note_title, previous_notes = get_previous_notes()
-
-    rest = 4000 - get_size(PROMPT) - get_size(previous_notes)
-
-    print("## Fill with related fragments")
-    titles, digests = fill_with_related_fragments(rest, previous_notes)
-    digest_str = "\n".join(digests)
-
-    prompt = PROMPT.format(digest_str=digest_str, previous_notes=previous_notes)
-    lines.extend(call_gpt(prompt))
-    lines.extend(make_embedding_report(previous_note_title, previous_notes, titles))
-
-    pages = [{"title": output_page_title, "lines": lines}]
-    return pages
 
 
 def make_embedding_report(previous_note_title, previous_notes, titles):
