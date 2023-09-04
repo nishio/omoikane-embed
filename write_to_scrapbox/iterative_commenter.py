@@ -399,16 +399,66 @@ def multiheads():
     return pages_to_update
 
 
+def has_ai_generated_contents(lines):
+    return any([line.startswith(AI_GENERATED_MARKER) for line in lines])
+
+
+def pioneer():
+    """
+    Activates the pioneering mode.
+
+    In this mode, the function identifies and extends or generates new content
+    for areas in the system (e.g., Wiki pages) that are uncharted or incomplete.
+    This can be particularly useful for addressing "red links" or similar gaps in the system.
+
+    """
+    print("# Pioneer mode")
+    START_URL = "https://scrapbox.io/api/pages/nishio/%E2%9C%8D%EF%B8%8F%F0%9F%A4%96"
+    while True:
+        page = requests.get(START_URL).json()
+        pages_to_update = []
+        for link in page["links"]:
+            link = quote(link.replace(" ", "_"))
+            url = f"https://scrapbox.io/api/pages/nishio/{link}"
+
+            page = requests.get(url).json()
+
+            lines = [x["text"] for x in page["lines"]]
+            title = page["title"]
+            if has_ai_generated_contents(lines):
+                continue
+
+            print(link)
+            pages_to_update.extend(overwrite_mode(title, lines))
+        if pages_to_update:
+            scrapbox_io.write_pages(pages_to_update)
+            time.sleep(60 * 10)  # wait 10 minutes
+        else:
+            print("no pages to update")
+            time.sleep(60)  # wait 1 minute
+
+
 def main():
     global args
     parser = argparse.ArgumentParser(description="Process a URL")
     parser.add_argument("--url", type=str, help="The URL to process", required=False)
+    parser.add_argument(
+        "--pioneer",
+        action="store_true",
+        help="Enable the pioneering mode to extend or generate new content.",
+        required=False,
+    )
+
     parser.add_argument(
         "--skip-gpt",
         action="store_true",
         help="skip GPT API call for tests",
     )
     args = parser.parse_args()
+
+    if args.pioneer:
+        pioneer()
+        return []
 
     if args.url:
         # URL-specific overwrite, usually triggered by human
