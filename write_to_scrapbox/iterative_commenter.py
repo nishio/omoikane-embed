@@ -353,13 +353,11 @@ def make_embedding_report(previous_note_title, previous_notes, titles):
     return lines
 
 
-def multiheads():
-    print("# Multi-heads")
+def find_repeat_pages(pages):
+    "repeat🔁 page: everyday updated repeatedly"
     heads = []
-    jsondata = json.load(open(f"{PROJECT}.json"))
-    pages = jsondata["pages"]
     for page in pages:
-        if page["title"].startswith("🤖🔁"):
+        if "🔁" in page["title"]:
             heads.append((page["title"], page["lines"]))
 
     # to avoid too many updates
@@ -367,9 +365,36 @@ def multiheads():
         random.shuffle(heads)
         heads = heads[:MAX_UPDATE_PER_RUN]
 
+    return heads
+
+
+def find_occasional_pages(pages, N=1):
+    "occasional🌀 page: updated occasionally"
+    heads = []
+    for page in pages:
+        if "🌀" in page["title"]:
+            heads.append((page["updated"], (page["title"], page["lines"])))
+    heads.sort()
+    return [x[1] for x in heads[:N]]
+
+
+def multiheads():
+    # design note:
+    # https://scrapbox.io/nishio/AI%E3%81%AB%E3%82%88%E3%82%8B%E3%83%AA%E3%83%94%E3%83%BC%E3%83%88%E6%9B%B4%E6%96%B0%E3%83%9A%E3%83%BC%E3%82%B8
+    print("# Multi-heads")
+    heads = []
+    jsondata = json.load(open(f"{PROJECT}.json"))
+    pages = jsondata["pages"]
+    repeat_pages = find_repeat_pages(pages)
+    heads.extend(repeat_pages)
+    print("repeat pages:", [x[0] for x in repeat_pages])
+    occasional_pages = find_occasional_pages(pages)
+    heads.extend(occasional_pages)
+    print("occasional pages:", [x[0] for x in occasional_pages])
+
     pages_to_update = []
-    for head in heads:
-        pages_to_update.extend(overwrite_mode(*head))
+    for title, lines in heads:
+        pages_to_update.extend(overwrite_mode(title, lines))
 
     return pages_to_update
 
