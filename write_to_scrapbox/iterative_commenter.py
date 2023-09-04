@@ -422,7 +422,11 @@ def pioneer():
             link = quote(link.replace(" ", "_"))
             url = f"https://scrapbox.io/api/pages/nishio/{link}"
 
-            page = requests.get(url).json()
+            try:
+                page = requests.get(url).json()
+            except Exception as e:
+                print("error:", e, "url:", url)
+                continue
 
             lines = [x["text"] for x in page["lines"]]
             title = page["title"]
