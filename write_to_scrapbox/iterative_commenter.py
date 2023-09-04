@@ -16,6 +16,7 @@ import requests
 import argparse
 from urllib.parse import quote
 import urllib.parse
+import scrapbox_io
 
 from utils import (
     markdown_to_scrapbox,
@@ -378,23 +379,13 @@ def main():
     parser = argparse.ArgumentParser(description="Process a URL")
     parser.add_argument("--url", type=str, help="The URL to process", required=False)
     parser.add_argument(
-        "--get-latest",
-        action="store_true",
-        help="Get the latest page from online Scrapbox",
-    )
-    parser.add_argument(
-        "--overwrite",
-        action="store_true",
-        help="Overwrite the given page",
-    )
-    parser.add_argument(
         "--skip-gpt",
         action="store_true",
         help="skip GPT API call for tests",
     )
     args = parser.parse_args()
 
-    if args.overwrite and args.url:
+    if args.url:
         # URL-specific overwrite, usually triggered by human
         urls = []
         if args.url == "input":
@@ -428,7 +419,5 @@ def main():
 
 if __name__ == "__main__":
     pages = main()
-    for page in pages:
-        print(page["title"])
-        print("\n".join(page["lines"]))
-        print()
+    scrapbox_io.write_pages(pages)
+    print("write ok")
