@@ -395,6 +395,7 @@ def multiheads():
     pages_to_update = []
     for title, lines in heads:
         pages_to_update.extend(overwrite_mode(title, lines))
+        json.dump(pages_to_update, open("pages_to_update.json", "w"))
 
     return pages_to_update
 
@@ -430,6 +431,7 @@ def pioneer():
 
             print(link)
             pages_to_update.extend(overwrite_mode(title, lines))
+            json.dump(pages_to_update, open("pages_to_update.json", "w"))
         if pages_to_update:
             scrapbox_io.write_pages(pages_to_update)
             time.sleep(60 * 10)  # wait 10 minutes
