@@ -48,8 +48,8 @@ PROMPT = "".join(
         "and write a abstruct digest of them, ",
         "omit concrete information to reduce the content to half its size. ",
         "2: You also read the fragments from a colleague Nishio's research notes, ",
-        "if you find a relationship between the notes and a fragment X, it is highly significant. ",
-        "Use title of X to refer it. You should describe how the note and X are related.",
+        "if you find a relationship between the notes and a fragment, it is highly significant. ",
+        "Use title of the fragment to refer it. You should describe how the note and the fragment are related.",
         "3: You are encouraged to form opinions, think deeply. ",
         "4: Summarize your thoughts in a line. Then make title for the thought. ",
     ]
