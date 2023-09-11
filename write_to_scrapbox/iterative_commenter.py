@@ -405,7 +405,7 @@ def has_ai_generated_contents(lines):
 
 
 def pioneer_loop():
-    print("# Pioneer mode")
+    print("# Pioneer-Loop mode")
     while True:
         pages_to_update = pioneer()
         if pages_to_update:
