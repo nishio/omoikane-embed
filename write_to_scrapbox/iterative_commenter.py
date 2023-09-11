@@ -427,12 +427,14 @@ def pioneer():
 
     """
     print("# Pioneer mode")
-    START_URL = "https://scrapbox.io/api/pages/nishio/%E2%9C%8D%EF%B8%8F%F0%9F%A4%96"
+    START_URL = (
+        f"https://scrapbox.io/api/pages/{PROJECT}/%E2%9C%8D%EF%B8%8F%F0%9F%A4%96"
+    )
     page = requests.get(START_URL).json()
     pages_to_update = []
     for link in page["links"]:
         link = quote(link.replace(" ", "_"))
-        url = f"https://scrapbox.io/api/pages/nishio/{link}"
+        url = f"https://scrapbox.io/api/pages/{PROJECT}/{link}"
 
         try:
             page = requests.get(url).json()
