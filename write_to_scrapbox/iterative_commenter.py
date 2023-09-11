@@ -239,9 +239,10 @@ def get_used_titles(lines):
     return list(set(all_titles))
 
 
-def overwrite_mode(prev_title, prev_lines):
+def overwrite_mode(prev_title, prev_lines, original_prev_lines=None):
     print("overwrite:", prev_title)
-    original_prev_lines = prev_lines.copy()
+    if original_prev_lines is None:
+        original_prev_lines = prev_lines.copy()
 
     used_pages = get_used_titles(prev_lines) + [prev_title]
     print("used pages:", used_pages)
@@ -445,7 +446,7 @@ def pioneer():
             continue
 
         print(link)
-        pages_to_update.extend(overwrite_mode(title, lines))
+        pages_to_update.extend(overwrite_mode(title, lines, page["lines"]))
         json.dump(pages_to_update, open("pages_to_update.json", "w"))
     return pages_to_update
 
