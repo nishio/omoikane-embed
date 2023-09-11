@@ -450,6 +450,8 @@ def pioneer():
         print(link)
         pages_to_update.extend(overwrite_mode(title, lines, page["lines"]))
         json.dump(pages_to_update, open("pages_to_update.json", "w"))
+        if len(pages_to_update) == 10:
+            break
     return pages_to_update
 
 
@@ -507,13 +509,14 @@ def main():
             result.extend(overwrite_mode(prev_title, prev_lines))
         return result
 
-    pages_to_update = []
+    return pioneer()
+    # pages_to_update = []
 
-    if not args.url:
-        # when url is specified, user want to update the page only
-        pages_to_update.extend(multiheads())
+    # if not args.url:
+    #     # when url is specified, user want to update the page only
+    #     pages_to_update.extend(multiheads())
 
-    return pages_to_update
+    # return pages_to_update
 
 
 if __name__ == "__main__":
