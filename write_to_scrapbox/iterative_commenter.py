@@ -64,7 +64,7 @@ PROMPT += """
 {digest_str}
 """
 
-CHARACTOR_ICON = "[omni.icon]"
+CHARACTOR_ICON = "[omoikane.icon]"
 
 
 enc = tiktoken.get_encoding("cl100k_base")
